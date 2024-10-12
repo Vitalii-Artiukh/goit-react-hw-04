@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const ImageGallery = () => {
+const ImageGallery = () => {
   return (
     <ul>
       {/* Набір елементів списку із зображеннями */}
@@ -12,3 +12,5 @@ export const ImageGallery = () => {
     </ul>
   );
 };
+
+export default ImageGallery;

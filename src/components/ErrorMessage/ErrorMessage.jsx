@@ -1,5 +1,8 @@
 import React from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 
-export const ErrorMessage = () => {
-  return <div>ErrorMessage</div>;
+const ErrorMessage = ({ errorMessage }) => {
+  return <p>{errorMessage}</p>;
 };
+
+export default ErrorMessage;

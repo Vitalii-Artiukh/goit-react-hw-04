@@ -11,57 +11,149 @@ import {
   createContext,
 } from 'react';
 import reactLogo from '../assets/react.svg';
-import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { nanoid } from 'nanoid';
 import axios from 'axios';
 import styles from './App.module.css';
 import './App.module.css';
 import clsx from 'clsx';
-import Product from './product/Product';
 import taskItem from './task.json';
 import { object } from 'prop-types';
-import ArticleList from './ArticleList/ArticleList';
-import { fetchArticlesWithTopic } from './articles-api';
-import { SearchForm } from './SearchForm/SearchForm';
+import { fetchPhotos } from './searchAPI';
+import toast, { Toaster } from 'react-hot-toast';
+import LoadMoreBtn from './LoadMoreBtn/LoadMoreBtn';
+import ImageGallery from './ImageGallery/ImageGallery';
+import ErrorMessage from './ErrorMessage/ErrorMessage';
+//////////////////////  hw-04  ////////////////////////
 
-///////////////////  Хук useRef  //////////////////
+export const SearchBar = ({ addPhotos, defaultValue }) => {
+  const handleSubmit = event => {
+    event.preventDefault();
 
-const Player = ({ source }) => {
-  const playerRef = useRef();
+    const form = event.target;
+    const query = form.elements.search.value.trim();
 
-  const play = () => playerRef.current.play();
-  const pause = () => playerRef.current.pause();
+    if (query === '') {
+      toast.error('Please enter your search queries!', {
+        position: 'top-center',
+      });
+    } else {
+      addPhotos(query);
+      defaultValue();
+      event.target.reset();
+    }
+  };
+
+  return (
+    <header>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="search"
+          autoComplete="off"
+          autoFocus
+          placeholder="Search images and photos"
+        />
+        <button type="submit">Search</button>
+      </form>
+    </header>
+  );
+};
+
+const App = () => {
+  const [photos, setPhotos] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+
+  const [searchRequest, setSearchRequest] = useState('');
+  const [pages, setPages] = useState(1);
+  const [noMorePages, setNoMorePages] = useState(false);
+
+  useEffect(() => {
+    const addPhotos = async newPhotos => {
+      setSearchRequest(newPhotos);
+      setError(false);
+      setPhotos(null);
+      console.log(searchRequest);
+
+      try {
+        const data = await fetchPhotos(searchRequest, pages);
+
+        setPhotos(data);
+      } catch (error) {
+        setErrorMessage(error.message);
+        setError(true);
+      } finally {
+      }
+    };
+  }, [searchRequest, pages]);
+  const defaultValue = () => {
+    setSearchRequest('');
+    setPhotos(null);
+    setPages(1);
+  };
 
   return (
     <div>
-      <video src={source} ref={playerRef}>
-        Sorry, your browser does not support embedded videos.
-      </video>
-      <div>
-        <button onClick={play}>Play</button>
-        <button onClick={pause}>Pause</button>
-      </div>
+      <Toaster />
+
+      <SearchBar addPhotos={addPhotos} defaultValue={defaultValue} />
+      {loading && <Loader />}
+
+      {error ? (
+        <ErrorMessage errorMessage={errorMessage} />
+      ) : (
+        photos && (
+          <>
+            <ImageGallery photos={photos} />
+            {noMorePages && <LoadMoreBtn />}
+          </>
+        )
+      )}
     </div>
   );
 };
 
-const CustomButton = forwardRef((props, ref) => (
-  <button ref={ref}>{props.children}</button>
-));
+export default App;
 
-const App = () => {
-  const btnRef = useRef();
+///////////////////  Хук useRef  //////////////////
 
-  useEffect(() => btnRef.current.focus(), []);
+// const Player = ({ source }) => {
+//   const playerRef = useRef();
 
-  return (
-    <>
-      <CustomButton ref={btnRef}>Button with forwarded ref</CustomButton>
-      <Player source="http://media.w3.org/2010/05/sintel/trailer.mp4" />;
-    </>
-  );
-};
+//   const play = () => playerRef.current.play();
+//   const pause = () => playerRef.current.pause();
+
+//   return (
+//     <div>
+//       <video src={source} ref={playerRef}>
+//         Sorry, your browser does not support embedded videos.
+//       </video>
+//       <div>
+//         <button onClick={play}>Play</button>
+//         <button onClick={pause}>Pause</button>
+//       </div>
+//     </div>
+//   );
+// };
+
+// const CustomButton = forwardRef((props, ref) => (
+//   <button ref={ref}>{props.children}</button>
+// ));
+
+// const App = () => {
+//   const btnRef = useRef();
+
+//   useEffect(() => btnRef.current.focus(), []);
+
+//   return (
+//     <>
+//       <CustomButton ref={btnRef}>Button with forwarded ref</CustomButton>
+//       <Player source="http://media.w3.org/2010/05/sintel/trailer.mp4" />;
+//     </>
+//   );
+// };
 
 ////////////////////////
 // const App = () => {
@@ -1030,5 +1122,3 @@ const App = () => {
 //     </div>
 //   );
 // };
-
-export default App;
