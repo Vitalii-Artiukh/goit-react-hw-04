@@ -16,101 +16,120 @@ import { nanoid } from 'nanoid';
 import axios from 'axios';
 import styles from './App.module.css';
 import './App.module.css';
-import clsx from 'clsx';
-import taskItem from './task.json';
-import { object } from 'prop-types';
-import { fetchPhotos } from './searchAPI';
 import toast, { Toaster } from 'react-hot-toast';
+import fetchPhotos from './searchAPI';
+import SearchBar from './SearchBar/SearchBar';
 import LoadMoreBtn from './LoadMoreBtn/LoadMoreBtn';
 import ImageGallery from './ImageGallery/ImageGallery';
 import ErrorMessage from './ErrorMessage/ErrorMessage';
+import Loader from './Loader/Loader';
+import ImageModal from './ImageModal/ImageModal';
+
 //////////////////////  hw-04  ////////////////////////
-
-export const SearchBar = ({ addPhotos, defaultValue }) => {
-  const handleSubmit = event => {
-    event.preventDefault();
-
-    const form = event.target;
-    const query = form.elements.search.value.trim();
-
-    if (query === '') {
-      toast.error('Please enter your search queries!', {
-        position: 'top-center',
-      });
-    } else {
-      addPhotos(query);
-      defaultValue();
-      event.target.reset();
-    }
-  };
-
-  return (
-    <header>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="search"
-          autoComplete="off"
-          autoFocus
-          placeholder="Search images and photos"
-        />
-        <button type="submit">Search</button>
-      </form>
-    </header>
-  );
-};
-
 const App = () => {
-  const [photos, setPhotos] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [photos, setPhotos] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const [searchRequest, setSearchRequest] = useState('');
   const [pages, setPages] = useState(1);
   const [noMorePages, setNoMorePages] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [largeImageUrl, setLargeImageUrl] = useState('');
+  const [isNameModal, setIsNameModal] = useState('');
+  const [isLocationModal, setIsLocationModal] = useState('');
+  const [isLikesModal, setIsLikesModal] = useState(0);
+  const [descriptionModal, setDescriptionModal] = useState('');
+
   useEffect(() => {
-    const addPhotos = async newPhotos => {
-      setSearchRequest(newPhotos);
-      setError(false);
-      setPhotos(null);
-      console.log(searchRequest);
-
+    async function addPhotos() {
       try {
-        const data = await fetchPhotos(searchRequest, pages);
+        setLoading(true);
 
-        setPhotos(data);
+        setError(false);
+
+        const data = await fetchPhotos(searchQuery, pages);
+        const gallery = data.results;
+        setPhotos(prevPhoto => [...prevPhoto, ...gallery]);
+        setNoMorePages(pages >= data.total_pages);
+        if (gallery.length === 0 && pages === 1) {
+          toast('No images for your request!', {
+            position: 'top-center',
+            duration: 3000,
+          });
+        }
       } catch (error) {
-        setErrorMessage(error.message);
         setError(true);
+        setErrorMessage(error.message);
+        console.log(error.message);
       } finally {
+        setLoading(false);
       }
-    };
-  }, [searchRequest, pages]);
+    }
+    if (searchQuery !== '') {
+      addPhotos();
+    }
+  }, [pages, searchQuery]);
+
+  function addNextPage() {
+    setPages(page => page + 1);
+  }
+
   const defaultValue = () => {
-    setSearchRequest('');
-    setPhotos(null);
+    setSearchQuery('');
+    setPhotos([]);
     setPages(1);
   };
+
+  function openModal(
+    urlModal,
+    nameModal,
+    locationModal,
+    likesModal,
+    description
+  ) {
+    setModalIsOpen(true);
+    setLargeImageUrl(urlModal);
+    setIsNameModal(nameModal);
+    setIsLocationModal(locationModal);
+    setIsLikesModal(likesModal);
+    setDescriptionModal(description);
+  }
+
+  function closeModal() {
+    setModalIsOpen(false);
+  }
 
   return (
     <div>
       <Toaster />
 
-      <SearchBar addPhotos={addPhotos} defaultValue={defaultValue} />
-      {loading && <Loader />}
+      <SearchBar defaultValue={defaultValue} setSearchQuery={setSearchQuery} />
 
       {error ? (
         <ErrorMessage errorMessage={errorMessage} />
       ) : (
-        photos && (
-          <>
-            <ImageGallery photos={photos} />
-            {noMorePages && <LoadMoreBtn />}
-          </>
+        photos.length > 0 && (
+          <ImageGallery photos={photos} openModal={openModal} />
         )
       )}
+      {loading && <Loader />}
+      {!noMorePages && photos.length !== 0 && (
+        <LoadMoreBtn addNextPage={addNextPage} />
+      )}
+      <ImageModal
+        largeImageUrl={largeImageUrl}
+        isNameModal={isNameModal}
+        isLocationModal={isLocationModal}
+        isLikesModal={isLikesModal}
+        descriptionModal={descriptionModal}
+        modalIsOpen={modalIsOpen}
+        closeModal={closeModal}
+      />
     </div>
   );
 };

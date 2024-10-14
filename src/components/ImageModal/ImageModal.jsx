@@ -1,5 +1,42 @@
 import React from 'react';
+import Modal from 'react-modal';
+import styles from './ImageModal.module.css';
 
-export const ImageModal = () => {
-  return <div>ImageModal</div>;
+Modal.setAppElement('#root');
+
+Modal.defaultStyles.overlay.backgroundColor = 'rgba(0, 0, 0, 0.85)';
+
+const ImageModal = ({
+  largeImageUrl,
+  isNameModal,
+  isLocationModal,
+  isLikesModal,
+  descriptionModal,
+  modalIsOpen,
+  closeModal,
+}) => {
+  return (
+    <div>
+      <Modal
+        className={styles.modal}
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        bodyOpenClassName={styles.body}
+        closeTimeoutMS={250}
+      >
+        <img
+          className={styles.image}
+          src={largeImageUrl}
+          alt={descriptionModal}
+        />
+        <p className={styles.name}>
+          Owner of the photo: {isNameModal}, from {isLocationModal}.{' '}
+          {isLikesModal} likes
+        </p>
+        <p className={styles.description}>{descriptionModal}</p>
+      </Modal>
+    </div>
+  );
 };
+
+export default ImageModal;

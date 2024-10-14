@@ -1,16 +1,16 @@
 import React from 'react';
+import ImageCard from '../ImageCard/ImageCard';
+import styles from './ImageGallery.module.css';
 
-const ImageGallery = () => {
+const ImageGallery = ({ photos, openModal }) => {
   return (
-    <ul>
-      {/* Набір елементів списку із зображеннями */}
-      <li>
-        <div>
-          <img src="" alt="" />
-        </div>
-      </li>
+    <ul className={styles.list}>
+      {photos.map(image => (
+        <li key={image.id}>
+          <ImageCard photo={image} openModal={openModal} />
+        </li>
+      ))}
     </ul>
   );
 };
-
 export default ImageGallery;
