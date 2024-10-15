@@ -62,7 +62,7 @@ const App = () => {
   useEffect(() => {
     if (pages > 1) {
       window.scrollBy({
-        top: 620,
+        top: 455,
         behavior: 'smooth',
       });
     }
