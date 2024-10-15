@@ -11,7 +11,7 @@ export default function SearchBar({ defaultValue, setSearchQuery }) {
 
     if (query === '') {
       toast.error('Please enter your search queries!', {
-        position: 'top-center',
+        position: 'top-right',
       });
     } else {
       defaultValue();

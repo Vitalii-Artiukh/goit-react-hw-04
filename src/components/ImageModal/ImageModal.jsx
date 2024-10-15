@@ -30,7 +30,10 @@ const ImageModal = ({
           alt={descriptionModal}
         />
         <p className={styles.name}>
-          Owner of the photo: {isNameModal}, from {isLocationModal}.{' '}
+          Owner of the photo:{' '}
+          <span className={styles.spanName}>
+            {isNameModal}, from {isLocationModal}.
+          </span>{' '}
           {isLikesModal} likes
         </p>
         <p className={styles.description}>{descriptionModal}</p>

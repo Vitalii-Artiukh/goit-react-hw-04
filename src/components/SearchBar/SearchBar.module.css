@@ -3,6 +3,7 @@
   padding: 12px;
   background-color: rgb(1, 1, 73);
   margin-bottom: 12px;
+  position: fixed;
 }
 
 .form {

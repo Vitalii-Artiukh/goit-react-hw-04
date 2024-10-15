@@ -4,7 +4,7 @@ import styles from './ImageCard.module.css';
 const ImageCard = ({ photo, openModal }) => {
   return (
     <div>
-      <img
+      <img className={styles.img}
         src={photo.urls.small}
         alt={photo.alt_description}
         onClick={() =>

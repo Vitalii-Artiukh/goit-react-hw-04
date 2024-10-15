@@ -2,7 +2,7 @@ import React from 'react';
 import axios from 'axios';
 
 axios.defaults.baseURL = 'https://api.unsplash.com';
-const clientId = 'N2hFKxqELoV2Hd6dcIRJn1oRrjfp310WTtPLEXfMXjg';
+const clientId = 'L8gl-NSA6WgM_hr7Eskh6cG-VL4XlvL29DTZBgzk6gQ';
 
 //  client_id=L8gl-NSA6WgM_hr7Eskh6cG-VL4XlvL29DTZBgzk6gQ
 

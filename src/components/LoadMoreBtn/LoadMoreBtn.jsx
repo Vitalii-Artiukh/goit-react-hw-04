@@ -4,7 +4,7 @@ import styles from './LoadMoreBtn.module.css';
 
 const LoadMoreBtn = ({ addNextPage }) => {
   return (
-    <button type="button" onClick={addNextPage}>
+    <button className={styles.loadMoreBtn} type="button" onClick={addNextPage}>
       <IoCloudDownloadOutline />
       {'  '}Load more
     </button>
